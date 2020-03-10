@@ -1,4 +1,6 @@
-## [Yuanfudao at SemEval-2018 Task 11: Three-way Attention and Relational Knowledge for Commonsense Machine Comprehension](https://arxiv.org/abs/1803.00191)
+# TriAN - adaptation for the mowgli framework
+
+Forked from [https://github.com/intfloat/commonsense-rc](https://github.com/intfloat/commonsense-rc).
 
 ## Model Overview
 
@@ -18,30 +20,30 @@ The overall model architecture is shown below:
 
 ## How to run
 
-### Prerequisite
+Note: Won't work for >= python3.7 due to `async` keyword conflict.
 
-pytorch 0.2, 0.3 or 0.4 (may have a few warnings, but that's ok)
+Note: run this in a virtual environment.
 
-spacy >= 2.0
+Note: GPU machine is preferred, training on CPU will be much slower.
 
-Won't work for >= python3.7 due to `async` keyword conflict.
+### Setup
 
-GPU machine is preferred,
-training on CPU will be much slower.
+* Run `pip install -r requirements.txt`
+* `python -m spacy download en`
 
-### Step 1:
-Download preprocessed data from [Google Drive](https://drive.google.com/open?id=1M1saVYk-4Xh0Y0Ok6e8liDLnElnGc0P4) or [Baidu Cloud Disk](https://pan.baidu.com/s/1kWHj2z9), unzip and put them under folder data/.
 
-If you choose to preprocess dataset by yourself,
+### Step 1: Prepare data
+* Download preprocessed data from [Google Drive](https://drive.google.com/open?id=1M1saVYk-4Xh0Y0Ok6e8liDLnElnGc0P4) or [Baidu Cloud Disk](https://pan.baidu.com/s/1kWHj2z9), unzip and put them under folder data/.
+* If you choose to preprocess dataset by yourself,
 please run `./download.sh` to download [Glove embeddings](http://nlp.stanford.edu/data/glove.840B.300d.zip) and [ConceptNet](https://github.com/commonsense/conceptnet5/wiki/Downloads), and then run `./run.sh` to preprocess dataset and train the model.
 
-Official dataset can be downloaded on [hidrive](https://my.hidrive.com/lnk/DhAhE8B5).
+Note: Official dataset can be downloaded on [hidrive](https://my.hidrive.com/lnk/DhAhE8B5).
 
-We transform original XML format data to Json format with [xml2json](https://github.com/hay/xml2json) by running `./xml2json.py --pretty --strip_text -t xml2json -o test-data.json test-data.xml`
+Note: We transform original XML format data to Json format with [xml2json](https://github.com/hay/xml2json) by running `./xml2json.py --pretty --strip_text -t xml2json -o test-data.json test-data.xml`
 
-### Step 2:
+### Step 2: Prepare model
 
-Train model with `python3 src/main.py --gpu 0`,
+* Train model with `python3 src/main.py --gpu 0`,
 the accuracy on development set will be approximately 83% after 50 epochs.
 
 ## How to reproduce our competition results

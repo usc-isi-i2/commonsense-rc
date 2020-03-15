@@ -39,7 +39,7 @@ def _to_indices_and_mask(batch_tensor, need_mask=True):
     batch_size = len(batch_tensor)
     indices = torch.LongTensor(batch_size, mx_len).fill_(0)
     if need_mask:
-        mask = torch.ByteTensor(batch_size, mx_len).fill_(1)
+        mask = torch.BoolTensor(batch_size, mx_len).fill_(1)
     for i, t in enumerate(batch_tensor):
         indices[i, :len(t)].copy_(t)
         if need_mask:

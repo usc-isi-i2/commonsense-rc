@@ -357,26 +357,35 @@ def preprocess_conceptnet(path):
     writer = open('./data/concept.filter', 'w', encoding='utf-8')
     def _get_lan_and_w(arg):
         arg = arg.strip('/').split('/')
-        return arg[1], arg[2]
-    for line in open(path, 'r', encoding='utf-8'):
-        fs = line.split('\t')
-        relation, arg1, arg2 = fs[1].split('/')[-1], fs[2], fs[3]
-        lan1, w1 = _get_lan_and_w(arg1)
-        if lan1 != 'en' or not all(w in utils.vocab for w in w1.split('_')):
-            continue
-        lan2, w2 = _get_lan_and_w(arg2)
-        if lan2 != 'en' or not all(w in utils.vocab for w in w2.split('_')):
-            continue
-        obj = json.loads(fs[-1])
-        if obj['weight'] < 1.0:
-            continue
-        writer.write('%s %s %s\n' % (relation, w1, w2))
+        if len(arg)>2:
+            return arg[1], arg[2]
+        else:
+            print(arg)
+            return '', ''
+    with open(path, 'r', encoding='utf-8') as f:
+        next(f)
+        for line in f:
+
+            fs = line.split('\t')
+#        relation, arg1, arg2 = fs[1].split('/')[-1], fs[2], fs[3]
+            arg1, relation, arg2 = fs[0], fs[1].split('/')[-1], fs[2]
+            lan1, w1 = _get_lan_and_w(arg1)
+            if lan1 != 'en' or not all(w in utils.vocab for w in w1.split('_')):
+                continue
+            lan2, w2 = _get_lan_and_w(arg2)
+            if lan2 != 'en' or not all(w in utils.vocab for w in w2.split('_')):
+                continue
+#            obj = json.loads(fs[-1])
+#            if obj['weight'] < 1.0:
+            if float(fs[4])<1.0: # weight
+                continue
+            writer.write('%s %s %s\n' % (relation, w1, w2))
     writer.close()
 
 if __name__ == '__main__':
     init_tokenizer()
     if len(sys.argv) > 1 and sys.argv[1] == 'conceptnet':
-        preprocess_conceptnet('./data/conceptnet-assertions-5.5.5.csv')
+        preprocess_conceptnet('./data/conceptnet-edges.csv')
         exit(0)
     preprocess_dataset('./data/trial-data.json')
     preprocess_dataset('./data/dev-data.json')

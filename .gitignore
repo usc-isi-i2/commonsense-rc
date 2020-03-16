@@ -11,4 +11,6 @@ data/RACE/
 *.mdl
 answer.txt
 final_output.zip
-data/concept.filter
+data/*.filter
+data/conceptnet-*.csv
+visualgenome*/

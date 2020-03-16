@@ -217,9 +217,9 @@ def compute_features(d_dict, q_dict, c_dict):
     tf = [0.1 * math.log(wikiwords.N * wikiwords.freq(w.lower()) + 10) for w in d_dict['words']]
     tf = [float('%.2f' % v) for v in tf]
     d_words = Counter(filter(lambda w: not is_stopword(w) and not is_punc(w), d_dict['words']))
-    from conceptnet import concept_net
-    p_q_relation = concept_net.p_q_relation(d_dict['words'], q_dict['words'])
-    p_c_relation = concept_net.p_q_relation(d_dict['words'], c_dict['words'])
+    from kg import my_kg
+    p_q_relation = my_kg.p_q_relation(d_dict['words'], q_dict['words'])
+    p_c_relation = my_kg.p_q_relation(d_dict['words'], c_dict['words'])
     assert len(in_q) == len(in_c) and len(lemma_in_q) == len(in_q) and len(lemma_in_c) == len(in_q) and len(tf) == len(in_q)
     assert len(tf) == len(p_q_relation) and len(tf) == len(p_c_relation)
     return {
@@ -382,8 +382,35 @@ def preprocess_conceptnet(path):
             writer.write('%s %s %s\n' % (relation, w1, w2))
     writer.close()
 
+def preprocess_cskg(path):
+    import utils
+    build_vocab_from_raw_dataset(path='./data/*-data.json')
+    writer = open('./data/cskg.filter', 'w', encoding='utf-8')
+    def _get_w(arg):
+        arg = arg.replace('vg:', '')
+        return arg
+    with open(path, 'r', encoding='utf-8') as f:
+        next(f)
+        for line in f:
+            fs = line.split('\t')
+            arg1, relation, arg2 = fs[0], fs[1].split(':')[-1], fs[2]
+            w1 = _get_w(arg1)
+            if not all(w in utils.vocab for w in w1.split('_')):
+                continue
+            w2 = _get_w(arg2)
+            if not all(w in utils.vocab for w in w2.split('_')):
+                continue
+            if float(fs[4])<1.0: # weight
+                continue
+            writer.write('%s %s %s\n' % (relation, w1, w2))
+    writer.close()
+
+
 if __name__ == '__main__':
     init_tokenizer()
+    if len(sys.argv) > 1 and sys.argv[1] in ['visualgenome', 'cskg']:
+        preprocess_cskg('./%s-lbl/edges_v003.csv' % sys.argv[1])
+        exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == 'conceptnet':
         preprocess_conceptnet('./data/conceptnet-edges.csv')
         exit(0)

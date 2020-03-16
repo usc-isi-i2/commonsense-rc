@@ -1,8 +1,8 @@
 from utils import is_stopword
 
-class ConceptNet:
+class KG:
 
-    def __init__(self, path='./data/concept.filter'):
+    def __init__(self, path='./data/cskg.filter'):
         self.data = {}
         cnt = 0
         for triple in open(path, 'r', encoding='utf-8'):
@@ -43,9 +43,9 @@ class ConceptNet:
                     break
         return ret
 
-concept_net = ConceptNet()
+my_kg=KG()
 if __name__ == '__main__':
-    net = ConceptNet()
+    net = KG()
     print(net.get_relation('positive', 'negative'))
     print(net.get_relation('under water', 'above water'))
     while True:

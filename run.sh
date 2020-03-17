@@ -2,6 +2,9 @@
 
 kg="conceptnet"
 kg="visualgenome"
+kg="cskg"
+
+rm data/*.filter
 
 # Get conceptnet triples
 python3 src/preprocess.py $kg

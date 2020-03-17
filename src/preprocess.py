@@ -382,25 +382,42 @@ def preprocess_conceptnet(path):
             writer.write('%s %s %s\n' % (relation, w1, w2))
     writer.close()
 
+def get_uri_meat(uri):
+    norm=uri.split('/')[-1]
+    norm=norm.split(':')[-1]
+    return norm
+
 def preprocess_cskg(path):
     import utils
     build_vocab_from_raw_dataset(path='./data/*-data.json')
     writer = open('./data/cskg.filter', 'w', encoding='utf-8')
-    def _get_w(arg):
-        arg = arg.replace('vg:', '')
-        return arg
+    def _get_w(arg, labels):
+        if arg in labels.keys():
+            return labels[arg]
+        else: return ''
+
+    nodes_path=path.replace('edges', 'nodes')
+    node2label={}
+    with open(nodes_path, 'r') as f:
+        next(f)
+        for line in f:
+            fs=line.split('\t')
+            node2label[fs[0]]=fs[1]
+    print('node index ready')
     with open(path, 'r', encoding='utf-8') as f:
         next(f)
         for line in f:
             fs = line.split('\t')
-            arg1, relation, arg2 = fs[0], fs[1].split(':')[-1], fs[2]
-            w1 = _get_w(arg1)
-            if not all(w in utils.vocab for w in w1.split('_')):
+            if fs[4]=='weight': continue # header column
+
+            arg1, relation, arg2 = fs[0], get_uri_meat(fs[1]), fs[2]
+            w1 = _get_w(arg1, node2label)
+            if not all(w in utils.vocab for w in w1.split(' ')):
                 continue
-            w2 = _get_w(arg2)
-            if not all(w in utils.vocab for w in w2.split('_')):
+            w2 = _get_w(arg2, node2label)
+            if not all(w in utils.vocab for w in w2.split(' ')):
                 continue
-            if float(fs[4])<1.0: # weight
+            if float(fs[4])<1.0 or w1==w2: # weight<1.0 or same words -> skip
                 continue
             writer.write('%s %s %s\n' % (relation, w1, w2))
     writer.close()
@@ -409,7 +426,7 @@ def preprocess_cskg(path):
 if __name__ == '__main__':
     init_tokenizer()
     if len(sys.argv) > 1 and sys.argv[1] in ['visualgenome', 'cskg']:
-        preprocess_cskg('./%s-lbl/edges_v003.csv' % sys.argv[1])
+        preprocess_cskg('./%s/edges_v003.csv' % sys.argv[1])
         exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == 'conceptnet':
         preprocess_conceptnet('./data/conceptnet-edges.csv')

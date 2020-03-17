@@ -6,7 +6,7 @@ class KG:
         self.data = {}
         cnt = 0
         for triple in open(path, 'r', encoding='utf-8'):
-            r, arg1, arg2 = triple.split()
+            r, arg1, arg2, *rest = triple.split()
             if not arg1 in self.data:
                 self.data[arg1] = {}
             self.data[arg1][arg2] = r

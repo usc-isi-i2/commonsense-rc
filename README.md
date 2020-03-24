@@ -28,14 +28,18 @@ Note: GPU machine is preferred, training on CPU will be much slower.
 
 ### Setup
 
-* Run `pip install -r requirements.txt`
-* `python -m spacy download en`
+1. Create conda virtual environment and activate it 
+`conda create -n cs-rc python=3.6 anaconda` 
+`conda actuvate cs-rc`
 
+2. Run `pip install -r requirements.txt`
+
+3. `python -m spacy download en`
+
+4. Run `./download.sh` to download [Glove embeddings](http://nlp.stanford.edu/data/glove.840B.300d.zip) and CSKG.
 
 ### Step 1: Prepare data
-* Download preprocessed data from [Google Drive](https://drive.google.com/open?id=1M1saVYk-4Xh0Y0Ok6e8liDLnElnGc0P4) or [Baidu Cloud Disk](https://pan.baidu.com/s/1kWHj2z9), unzip and put them under folder data/.
-* If you choose to preprocess dataset by yourself,
-please run `./download.sh` to download [Glove embeddings](http://nlp.stanford.edu/data/glove.840B.300d.zip) and [ConceptNet](https://github.com/commonsense/conceptnet5/wiki/Downloads), and then run `./run.sh` to preprocess dataset and train the model.
+* Run `./run.sh` to preprocess dataset and train the model.
 
 Note: Official dataset can be downloaded on [hidrive](https://my.hidrive.com/lnk/DhAhE8B5).
 

@@ -20,13 +20,7 @@ The overall model architecture is shown below:
 
 ## How to run
 
-Note: Won't work for >= python3.7 due to `async` keyword conflict.
-
-Note: run this in a virtual environment.
-
-Note: GPU machine is preferred, training on CPU will be much slower.
-
-### Setup
+### Step 0: Setup
 
 1. Create conda virtual environment and activate it 
 `conda create -n cs-rc python=3.6 anaconda` 
@@ -50,11 +44,8 @@ Note: We transform original XML format data to Json format with [xml2json](https
 * Train model with `python3 src/main.py --gpu 0`,
 the accuracy on development set will be approximately 83% after 50 epochs.
 
-## How to reproduce our competition results
+### Notes:
 
-Following above instructions you will get a model with ~81.5% accuracy on test set,
-we use two additional techniques for our official submission (~83.95% accuracy):
-
-1. Pretrain our model with [RACE dataset](http://www.cs.cmu.edu/~glai1/data/race/) for 10 epochs.
-
-2. Train 9 models with different random seeds and ensemble their outputs.
+1. Won't work for >= python3.7 due to `async` keyword conflict.
+2. Run this in a virtual environment.
+3. GPU machine is preferred, training on CPU will be much slower.

@@ -181,7 +181,6 @@ def init_tokenizer():
     global TOK
     TOK = SpacyTokenizer(annotators={'pos', 'lemma', 'ner'})
 
-
 digits2w = {'0': 'zero', '1': 'one', '2': 'two', '3': 'three',
             '4': 'four', '5': 'five', '6': 'six', '7': 'seven', '8': 'eight', '9': 'nine'}
 def replace_digits(words):
@@ -381,11 +380,6 @@ def preprocess_conceptnet(path):
                 continue
             writer.write('%s %s %s\n' % (relation, w1, w2))
     writer.close()
-
-def get_uri_meat(uri):
-    norm=uri.split('/')[-1]
-    norm=norm.split(':')[-1]
-    return norm
 
 def preprocess_cskg(path):
     import utils

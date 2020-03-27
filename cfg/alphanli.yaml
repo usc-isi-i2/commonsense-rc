@@ -1,0 +1,8 @@
+# Classes
+predictor:
+  class: predictor.trian.trian.Trian
+
+   # Settings
+  evaluate_training: false
+  store_predictions: true
+  datarows: 10

@@ -71,35 +71,42 @@ def get_example(d_id, q_id, c_id, d_dict, q_dict, c_dict, label):
             'label': label
         }
 
-def preprocess_dataset(data, partition, tok, is_test_set=False):
-	writer = open('./data/%s-processed.json' % partition, 'w', encoding='utf-8')
-	ex_cnt = 0
-	for obj in data:
-		q_id = getattr(obj, 'id')
-		d_id = q_id
-		context, question=obj.question
-		d_dict = tokenize(context, tok)
-		q_dict = tokenize(question, tok)
-		answers=getattr(obj, 'answers')
-		for i, ans in enumerate(answers):
-			c_dict = tokenize(ans, tok)
-			correct_answer=getattr(obj, 'correct_answer')
-			label = answers[int(correct_answer)] if not is_test_set else -1
-			c_id = correct_answer
-			example = get_example(d_id, q_id, c_id, d_dict, q_dict, c_dict, label)
-			example.update(compute_features(d_dict, q_dict, c_dict))
-			writer.write(json.dumps(example))
-			writer.write('\n')
+def preprocess_dataset(dataset, pargs, tok):
+	for partition in pargs.partitions:
+		part_data=getattr(dataset, partition)
+		writer = open(pargs.processed_file % partition, 'w', encoding='utf-8')
+		ex_cnt = 0
+		is_test_set=(partition=='test')
+		for obj in part_data:
+			q_id = getattr(obj, 'id')
+			d_id = q_id
+			context, question=obj.question
+			d_dict = tokenize(context, tok)
+			q_dict = tokenize(question, tok)
+			answers=getattr(obj, 'answers')
+			correct_answer=str(getattr(obj, 'correct_answer'))
+			for i, ans in enumerate(answers):
+				if ans.strip()=='': continue
+				c_id = str(i)
+				c_dict = tokenize(ans, tok)
+				label = int(correct_answer==c_id) if not is_test_set else -1
+				example = get_example(d_id, q_id, c_id, d_dict, q_dict, c_dict, label)
+				example.update(compute_features(d_dict, q_dict, c_dict))
+				writer.write(json.dumps(example))
+				writer.write('\n')
 
-			ex_cnt += 1
-	print('Found %d examples in %s...' % (ex_cnt, path))
-	writer.close()
+				ex_cnt += 1
+		print('Found %d examples in the %s partition...' % (ex_cnt, partition))
+		writer.close()
 
 ################ Preprocessing CSKG ###################
 
-def build_vocab(dataset, tok):
+def build_vocab(dataset, pargs, tok):
+	if os.path.exists(pargs.vocab_file) and os.path.getsize(pargs.vocab_file) > 0:
+		print('Loading cached vocab file from %s' % pargs.vocab_file)
+		return
 	word_cnt = Counter()
-	for partition in ['train', 'dev', 'test']:
+	for partition in pargs.partitions:
 		part_data=getattr(dataset, partition)
 		for obj in part_data:
 			context, question=obj.question
@@ -113,43 +120,45 @@ def build_vocab(dataset, tok):
 	for key, val in word_cnt.most_common():
 		utils.vocab.add(key)
 	print('Vocabulary size: %d' % len(utils.vocab))
-	writer = open('./data/vocab', 'w', encoding='utf-8')
+	writer = open(pargs.vocab_file, 'w', encoding='utf-8')
 	writer.write('\n'.join(utils.vocab.tokens()))
 	writer.close()
 
-def preprocess_cskg(path, dataset, tok):
-    build_vocab(dataset, tok)
-    writer = open('./data/cskg.filter', 'w', encoding='utf-8')
-    def _get_w(arg, labels):
-        if arg in labels.keys():
-            return labels[arg]
-        else: return ''
+def preprocess_cskg(pargs):
+	if os.path.exists(pargs.kg_filtered) and os.path.getsize(pargs.kg_filtered) > 0:
+		print('Loading cached CSKG filtered file from %s' % pargs.kg_filtered)
+		return
+	def _get_w(arg, labels):
+		if arg in labels.keys():
+			return labels[arg]
+		else: return ''
 
-    nodes_path=path.replace('edges', 'nodes')
-    node2label={}
-    with open(nodes_path, 'r') as f:
-        next(f)
-        for line in f:
-            fs=line.split('\t')
-            node2label[fs[0]]=fs[1]
-    print('node index ready')
-    datasources=[]
-    with open(path, 'r', encoding='utf-8') as f:
-        next(f)
-        for line in f:
-            fs = line.split('\t')
-            if fs[3]=='weight': continue # header column
+	nodes_path=pargs.kg_edges.replace('edges', 'nodes')
+	node2label={}
+	with open(nodes_path, 'r') as f:
+		next(f)
+		for line in f:
+			fs=line.split('\t')
+			node2label[fs[0]]=fs[1]
+	print('node index ready')
+	writer = open(pargs.kg_filtered, 'w', encoding='utf-8')
+	datasources=[]
+	with open(pargs.kg_edges, 'r', encoding='utf-8') as f:
+		next(f)
+		for line in f:
+			fs = line.split('\t')
+			if fs[3]=='weight': continue # header column
 
-            arg1, relation, arg2 = fs[0], utils.get_uri_meat(fs[1]), fs[2]
-            w1 = _get_w(arg1, node2label)
-            if not all(w in utils.vocab for w in w1.split(' ')):
-                continue
-            w2 = _get_w(arg2, node2label)
-            if not all(w in utils.vocab for w in w2.split(' ')):
-                continue
-            if float(fs[3])<1.0 or w1==w2: # weight<1.0 or same words -> skip
-                continue
-            datasources.append(fs[4])
-            writer.write('%s %s %s\n' % (relation, w1, w2))
-    writer.close()
-    print(Counter(datasources))
+			arg1, relation, arg2 = fs[0], utils.get_uri_meat(fs[1]), fs[2]
+			w1 = _get_w(arg1, node2label)
+			if not all(w in utils.vocab for w in w1.split(' ')):
+				continue
+			w2 = _get_w(arg2, node2label)
+			if not all(w in utils.vocab for w in w2.split(' ')):
+				continue
+			if float(fs[3])<1.0 or w1==w2: # weight<1.0 or same words -> skip
+				continue
+			datasources.append(fs[4])
+			writer.write('%s %s %s\n' % (relation, w1, w2))
+	writer.close()
+	print(Counter(datasources))

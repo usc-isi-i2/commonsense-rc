@@ -20,5 +20,22 @@ model_args={
 			'ner_emb_dim': 8,
 			'rel_emb_dim': 10,
 			'seed': 1234,
-			'test_mode': False}
+			'test_mode': False,
+			'checkpoint_dir': './checkpoint'
+			}
 
+preprocessing_args={
+			'kg_filtered': './data/cskg.filter',
+			'kg_edges': './data/cskg/edges_v004.csv',
+			'partitions': ['train', 'dev', 'test'],
+			'vocab_file': './data/vocab',
+            'rel_vocab_file': './data/rel_vocab',
+            'pos_vocab_file': './data/pos_vocab',
+            'ner_vocab_file': './data/ner_vocab',
+			'processed_file': './data/%s-processed.json'
+			}
+
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self

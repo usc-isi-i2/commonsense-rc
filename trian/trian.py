@@ -5,9 +5,11 @@ from trian.trian_classes import SpacyTokenizer
 from typing import List, Any
 from trian.preprocess_utils import preprocess_dataset, preprocess_cskg
 from trian.preprocess_utils import build_vocab
+from trian.utils import load_vocab, load_data
 from trian.model import Model
-from trian import config
+from trian.config import AttrDict, model_args as margs, preprocessing_args as pargs
 
+import copy
 import os
 import time
 import torch
@@ -17,19 +19,33 @@ from datetime import datetime
 
 class Trian(Predictor):
 	def preprocess(self, dataset:Dataset) -> Any:
+		pp_args=AttrDict(pargs)
 		tok = SpacyTokenizer(annotators={'pos', 'lemma', 'ner'})
-		preprocess_cskg('./data/cskg/edges_v004.csv', dataset, tok)
+		# Build vocabulary
+		build_vocab(dataset, pp_args, tok)
+
+		# Preprocess KG
+		preprocess_cskg(pp_args)
 		print('done preprocessing cskg')
-		for partition in ['train', 'dev', 'test']:
-			part_data=getattr(dataset, partition)
-			preprocess_dataset(part_data, partition, tok, partition=='test')
+		
+		# Preprocess datasets
+		preprocess_dataset(dataset, pp_args, tok)
+		
+		# Done
 		return dataset
 
 	def train(self, train_data:List, dev_data: List, graph: Any) -> Any:
 
-		model_args=config.model_args
+		model_args=AttrDict(margs)
+		pp_args=AttrDict(pargs)
+		print('Model arguments:', model_args)
 		if model_args.pretrained:
 			assert all(os.path.exists(p) for p in model_args.pretrained.split(',')), 'Checkpoint %s does not exist.' % model_args.pretrained
+
+		train_data = load_data(pp_args.processed_file % 'train')
+		dev_data = load_data(pp_args.processed_file % 'dev') 
+
+		load_vocab(pp_args, train_data+dev_data)
 
 		torch.manual_seed(model_args.seed)
 		np.random.seed(model_args.seed)
@@ -37,7 +53,6 @@ class Trian(Predictor):
 
 		best_model=None
 
-		build_vocab()
 		if model_args.test_mode:
 			# use validation data as training data
 			train_data += dev_data
@@ -45,13 +60,16 @@ class Trian(Predictor):
 		model = Model(model_args)
 
 		best_dev_acc = 0.0
-		os.makedirs('./checkpoint', exist_ok=True)
-		checkpoint_path = './checkpoint/%d-%s.mdl' % (args.seed, datetime.now().isoformat())
+		os.makedirs(model_args.checkpoint_dir, exist_ok=True)
+		checkpoint_path = '%s/%d-%s.mdl' % (model_args.checkpoint_dir, model_args.seed, datetime.now().isoformat())
 		print('Trained model will be saved to %s' % checkpoint_path)
 
 		for i in range(model_args.epoch):
 			print('Epoch %d...' % i)
 			if i == 0:
+				print('Dev data size', len(dev_data))
+				#for e in dev_data:
+				#	print(e.passage, e.question, e.choice)
 				dev_acc = model.evaluate(dev_data)
 				print('Dev accuracy: %f' % dev_acc)
 			start_time = time.time()

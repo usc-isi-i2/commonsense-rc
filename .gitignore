@@ -1,3 +1,6 @@
+glove*.zip
+src/mowgli-framework/
+output/
 .idea/
 __pycache__/
 *.pyc
@@ -14,3 +17,4 @@ final_output.zip
 data/*.filter
 data/conceptnet-*.csv
 visualgenome*/
+cskg/

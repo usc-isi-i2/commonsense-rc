@@ -1,12 +1,15 @@
 #! /bin/bash
 
-rm data/*.log
-rm data/*vocab
-rm data/*.json
+mkdir -p output
+
+#rm output/*.*
 rm checkpoint/*.mdl
 
-cfg="cfg/socialiqa-train-dev.yaml"
-for dataset in "socialiqa-train-dev" #"alphanli" #"physicaliqa-train-dev" # "socialiqa-train-dev"
+cfg="cfg/trian.yaml"
+#cfg="cfg/default.yaml"
+datasets="socialiqa-train-dev" #"alphanli" #"physicaliqa-train-dev" # "socialiqa-train-dev"
+
+for dataset in $datasets 
 do
 	python -m mowgli --dataset $dataset --output output/ --config $cfg 
 done

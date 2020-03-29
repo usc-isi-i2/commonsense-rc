@@ -2,7 +2,7 @@ from trian.utils import is_stopword
 
 class KG:
 
-    def __init__(self, path='./data/cskg.filter'):
+    def __init__(self, path='./output/cskg.filter'):
         self.data = {}
         cnt = 0
         for triple in open(path, 'r', encoding='utf-8'):

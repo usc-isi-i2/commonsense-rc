@@ -104,7 +104,7 @@ def gen_race_vocab(data):
         if key not in vocab:
             race_vocab.add(key)
     print('Vocabulary size: %d' % len(race_vocab))
-    writer = open('./data/race_vocab', 'w', encoding='utf-8')
+    writer = open('./output/race_vocab', 'w', encoding='utf-8')
     writer.write('\n'.join(race_vocab.tokens()))
     writer.close()
 
@@ -152,7 +152,7 @@ def load_vocab(pargs, data=None):
 		writer.close()
 
 	# Load conceptnet relation vocabulary
-	if not os.path.exists('./data/rel_vocab'):
+	if not os.path.exists(pargs.rel_vocab_file):
 		os.system("cut -d' ' -f1 %s | sort | uniq > %s" % (pargs.kg_filtered, pargs.rel_vocab_file))
 	print('Load relation vocabulary from %s...' % pargs.rel_vocab_file)
 	for w in open(pargs.rel_vocab_file, encoding='utf-8'):
@@ -168,7 +168,7 @@ def gen_submission(data, prediction):
     writer.close()
 
 def gen_debug_file(data, prediction):
-    writer = open('./data/output.log', 'w', encoding='utf-8')
+    writer = open('./output/output.log', 'w', encoding='utf-8')
     cur_pred, cur_choices = [], []
     for i, ex in enumerate(data):
         if i + 1 == len(data):
@@ -221,7 +221,7 @@ def gen_final_submission(data):
     print('Please submit final_output.zip to codalab.')
 
 def eval_based_on_outputs(path):
-    dev_data = load_data('./data/dev-data-processed.json')
+    dev_data = load_data('./output/dev-data-processed.json')
     label = [int(ex.label) for ex in dev_data]
     gold, cur_gold = [], []
     for i, ex in enumerate(dev_data):

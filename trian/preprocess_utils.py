@@ -80,7 +80,8 @@ def preprocess_dataset(dataset, pargs, tok):
 		for obj in part_data:
 			q_id = getattr(obj, 'id')
 			d_id = q_id
-			context, question=obj.question
+			*context_l, question=obj.question
+			context='. '.join(context_l)
 			d_dict = tokenize(context, tok)
 			q_dict = tokenize(question, tok)
 			answers=getattr(obj, 'answers')

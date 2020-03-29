@@ -21,18 +21,21 @@ model_args={
 			'rel_emb_dim': 10,
 			'seed': 1234,
 			'test_mode': False,
-			'checkpoint_dir': './checkpoint'
+			'checkpoint_dir': './checkpoint',
+			'last_log': './output/output.log',
+			'best_log': './output/best-dev.log',
+			'save_loc': './output/model.mdl'
 			}
 
 preprocessing_args={
-			'kg_filtered': './data/cskg.filter',
+			'kg_filtered': './output/cskg.filter',
 			'kg_edges': './data/cskg/edges_v004.csv',
 			'partitions': ['train', 'dev', 'test'],
-			'vocab_file': './data/vocab',
-            'rel_vocab_file': './data/rel_vocab',
-            'pos_vocab_file': './data/pos_vocab',
-            'ner_vocab_file': './data/ner_vocab',
-			'processed_file': './data/%s-processed.json'
+			'vocab_file': './output/vocab',
+            'rel_vocab_file': './output/rel_vocab',
+            'pos_vocab_file': './output/pos_vocab',
+            'ner_vocab_file': './output/ner_vocab',
+			'processed_file': './output/%s-processed.json'
 			}
 
 class AttrDict(dict):

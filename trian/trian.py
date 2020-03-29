@@ -63,43 +63,45 @@ class Trian(Predictor):
 		os.makedirs(model_args.checkpoint_dir, exist_ok=True)
 		checkpoint_path = '%s/%d-%s.mdl' % (model_args.checkpoint_dir, model_args.seed, datetime.now().isoformat())
 		print('Trained model will be saved to %s' % checkpoint_path)
-
 		for i in range(model_args.epoch):
 			print('Epoch %d...' % i)
 			if i == 0:
 				print('Dev data size', len(dev_data))
-				#for e in dev_data:
-				#	print(e.passage, e.question, e.choice)
-				dev_acc = model.evaluate(dev_data)
+				dev_acc, dev_preds, dev_probs = model.evaluate(dev_data)
 				print('Dev accuracy: %f' % dev_acc)
 			start_time = time.time()
 			np.random.shuffle(train_data)
 			cur_train_data = train_data
-
+		
 			model.train(cur_train_data)
-			train_acc = model.evaluate(train_data[:2000], debug=False, eval_train=True)
+			train2000=train_data[:2000]
+			train_acc, *rest = model.evaluate(train2000, debug=False, eval_train=True)
 			print('Train accuracy: %f' % train_acc)
-			dev_acc = model.evaluate(dev_data, debug=True)
+			dev_acc, dev_preds, dev_probs = model.evaluate(dev_data, debug=True)
 			print('Dev accuracy: %f' % dev_acc)
 
 			if dev_acc > best_dev_acc:
 				best_dev_acc = dev_acc
-				os.system('mv ./data/output.log ./data/best-dev.log')
+				os.system('mv %s %s ' % (model_args.last_log, model_args.best_log))
 				model.save(checkpoint_path)
-				best_model=copy.deepcopy(model)
+				best_model = Model(model_args)
+				best_model.network.load_state_dict(copy.deepcopy(model.network.state_dict()))
 			elif model_args.test_mode:
 				model.save(checkpoint_path)
 			print('Epoch %d use %d seconds.' % (i, time.time() - start_time))
 
 		print('Best dev accuracy: %f' % best_dev_acc)
+
 		return best_model
 
-	def predict(self, model: Any, entry: Entry) -> List:
-		question=entry.question
-		answers=entry.answers
+	def predict(self, model: Any, dataset: Dataset, partition: str) -> List:
 
-		answer=random.randint(0,len(answers)-1)
-		while answers[answer]=='':
-			answer=random.randint(0,len(answers)-1)
-		probs=['%.2f' % random.random() for i in range(len(answers))]
-		return str(answer), probs
+		pp_args=AttrDict(pargs)
+		dev_data = load_data(pp_args.processed_file % partition)
+
+		dev_acc, dev_preds, dev_probs = model.evaluate(dev_data)
+		print('Dev accuracy: %f' % dev_acc)
+
+		print(dev_preds)
+		print(dev_probs)
+		return dev_preds, dev_probs

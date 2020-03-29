@@ -75,10 +75,11 @@ class Model:
 
     def evaluate(self, dev_data, debug=False, eval_train=False):
         if len(dev_data) == 0:
-            return -1.0
+            return -1.0, [], []
         self.network.eval()
         correct, total, prediction, gold = 0, 0, [], []
         dev_data = sorted(dev_data, key=lambda ex: ex.id)
+        print(self.args)
         for batch_input in self._iter_data(dev_data):
             feed_input = [x for x in batch_input[:-1]]
             y = batch_input[-1].data.cpu().numpy()
@@ -89,13 +90,16 @@ class Model:
             assert(len(prediction) == len(gold))
 
         if eval_train:
+            raw_prediction=prediction
             prediction = [1 if p > 0.5 else 0 for p in prediction]
             acc = sum([1 if y1 == y2 else 0 for y1, y2 in zip(prediction, gold)]) / len(gold)
-            return acc
+            return acc, prediction, raw_prediction
 
         cur_pred, cur_gold, cur_choices = [], [], []
         if debug:
-            writer = open('./data/output.log', 'w', encoding='utf-8')
+            writer = open('./output/output.log', 'w', encoding='utf-8')
+        all_preds=[]
+        all_probs=[]
         for i, ex in enumerate(dev_data):
             if i + 1 == len(dev_data):
                 cur_pred.append(prediction[i])
@@ -103,6 +107,8 @@ class Model:
                 cur_choices.append(ex.choice)
             if (i > 0 and ex.id[:-1] != dev_data[i - 1].id[:-1]) or (i + 1 == len(dev_data)):
                 py, gy = np.argmax(cur_pred), np.argmax(cur_gold)
+                all_preds.append(str(py))
+                all_probs.append([])
                 if debug:
                     writer.write('Passage: %s\n' % dev_data[i - 1].passage)
                     writer.write('Question: %s\n' % dev_data[i - 1].question)
@@ -122,7 +128,7 @@ class Model:
         if debug:
             writer.write('Accuracy: %f\n' % acc)
             writer.close()
-        return acc
+        return acc, all_preds, all_probs
 
     def predict(self, test_data):
         # DO NOT SHUFFLE test_data

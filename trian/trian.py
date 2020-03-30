@@ -43,6 +43,7 @@ class Trian(Predictor):
 			assert all(os.path.exists(p) for p in model_args.pretrained.split(',')), 'Checkpoint %s does not exist.' % model_args.pretrained
 
 		train_data = load_data(pp_args.processed_file % 'train')
+		train_data += load_data(pp_args.processed_file % 'trial')
 		dev_data = load_data(pp_args.processed_file % 'dev') 
 
 		load_vocab(pp_args, train_data+dev_data)
@@ -84,15 +85,15 @@ class Trian(Predictor):
 				best_dev_acc = dev_acc
 				os.system('mv %s %s ' % (model_args.last_log, model_args.best_log))
 				model.save(checkpoint_path)
-				best_model = Model(model_args)
-				best_model.network.load_state_dict(copy.deepcopy(model.network.state_dict()))
+				#best_model = Model(model_args)
+				#best_model.network.load_state_dict(copy.deepcopy(model.network.state_dict()))
 			elif model_args.test_mode:
 				model.save(checkpoint_path)
 			print('Epoch %d use %d seconds.' % (i, time.time() - start_time))
 
 		print('Best dev accuracy: %f' % best_dev_acc)
 
-		return best_model
+		return model
 
 	def predict(self, model: Any, dataset: Dataset, partition: str) -> List:
 
@@ -100,8 +101,8 @@ class Trian(Predictor):
 		dev_data = load_data(pp_args.processed_file % partition)
 
 		dev_acc, dev_preds, dev_probs = model.evaluate(dev_data)
-		print('Dev accuracy: %f' % dev_acc)
+		print('Predict fn: Dev accuracy: %f' % dev_acc)
 
-		print(dev_preds)
-		print(dev_probs)
+		#print(dev_preds)
+		#print(dev_probs)
 		return dev_preds, dev_probs

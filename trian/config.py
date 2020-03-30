@@ -30,7 +30,7 @@ model_args={
 preprocessing_args={
 			'kg_filtered': './output/cskg.filter',
 			'kg_edges': './data/cskg/edges_v004.csv',
-			'partitions': ['train', 'dev', 'test'],
+			'partitions': ['train', 'dev', 'test', 'trial'],
 			'vocab_file': './output/vocab',
             'rel_vocab_file': './output/rel_vocab',
             'pos_vocab_file': './output/pos_vocab',

@@ -97,7 +97,8 @@ class Model:
 
         cur_pred, cur_gold, cur_choices = [], [], []
         if debug:
-            writer = open('./output/output.log', 'w', encoding='utf-8')
+            from trian import config
+            writer = open(config.model_args['last_log'], 'w', encoding='utf-8')
         all_preds=[]
         all_probs=[]
         for i, ex in enumerate(dev_data):

@@ -2,8 +2,8 @@
 
 mkdir -p output
 
-rm output/*
-rm checkpoint/*.mdl
+#rm output/*
+#rm checkpoint/*.mdl
 
 cfg="cfg/trian.yaml"
 #cfg="cfg/default.yaml"
@@ -13,5 +13,5 @@ datasets="se2018t11"
 
 for dataset in $datasets 
 do
-	python -m mowgli --dataset $dataset --output output/ --config $cfg 
+	python -m mowgli --dataset $dataset --output output/conceptnet-se18 --config $cfg 
 done

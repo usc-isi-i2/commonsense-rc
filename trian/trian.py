@@ -7,7 +7,7 @@ from trian.preprocess_utils import preprocess_dataset, preprocess_cskg
 from trian.preprocess_utils import build_vocab
 from trian.utils import load_vocab, load_data
 from trian.model import Model
-from trian.config import AttrDict, model_args as margs, preprocessing_args as pargs
+from trian.config import get_pp_args, get_model_args
 
 import copy
 import os
@@ -18,8 +18,8 @@ import numpy as np
 from datetime import datetime
 
 class Trian(Predictor):
-	def preprocess(self, dataset:Dataset) -> Any:
-		pp_args=AttrDict(pargs)
+	def preprocess(self, dataset:Dataset, kg='conceptnet') -> Any:
+		pp_args=get_pp_args(dataset.name)
 		tok = SpacyTokenizer(annotators={'pos', 'lemma', 'ner'})
 		# Build vocabulary
 		build_vocab(dataset, pp_args, tok)
@@ -36,8 +36,8 @@ class Trian(Predictor):
 
 	def train(self, train_data:List, dev_data: List, graph: Any) -> Any:
 
-		model_args=AttrDict(margs)
-		pp_args=AttrDict(pargs)
+		model_args=get_model_args(dataname)
+		pp_args=get_pp_args(dataset.name)
 		print('Model arguments:', model_args)
 		if model_args.pretrained:
 			assert all(os.path.exists(p) for p in model_args.pretrained.split(',')), 'Checkpoint %s does not exist.' % model_args.pretrained

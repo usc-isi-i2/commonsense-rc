@@ -148,7 +148,6 @@ def preprocess_cskg(pargs):
 		next(f)
 		for line in f:
 			fs = line.split('\t')
-			if fs[3]=='weight': continue # header column
 
 			arg1, relation, arg2 = fs[0], utils.get_uri_meat(fs[1]), fs[2]
 			w1 = _get_w(arg1, node2label)
@@ -157,7 +156,7 @@ def preprocess_cskg(pargs):
 			w2 = _get_w(arg2, node2label)
 			if not all(w in utils.vocab for w in w2.split(' ')):
 				continue
-			if float(fs[3])<1.0 or w1==w2: # weight<1.0 or same words -> skip
+			if float(fs[4])<1.0 or w1==w2: # weight<1.0 or same words -> skip
 				continue
 			datasources.append(fs[4])
 			writer.write('%s %s %s\n' % (relation, w1, w2))

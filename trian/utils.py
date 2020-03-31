@@ -8,6 +8,7 @@ import numpy as np
 from collections import Counter
 from nltk.corpus import stopwords
 
+from trian import config
 words = frozenset(stopwords.words('english'))
 punc = frozenset(string.punctuation)
 def is_stopword(w):
@@ -104,7 +105,7 @@ def gen_race_vocab(data):
         if key not in vocab:
             race_vocab.add(key)
     print('Vocabulary size: %d' % len(race_vocab))
-    writer = open('./output/race_vocab', 'w', encoding='utf-8')
+    writer = open(config.preprocessing_args['race_vocab_file'], 'w', encoding='utf-8')
     writer.write('\n'.join(race_vocab.tokens()))
     writer.close()
 
@@ -168,7 +169,7 @@ def gen_submission(data, prediction):
     writer.close()
 
 def gen_debug_file(data, prediction):
-    writer = open('./output/output.log', 'w', encoding='utf-8')
+    writer = open(config.model_args['last_log'], 'w', encoding='utf-8')
     cur_pred, cur_choices = [], []
     for i, ex in enumerate(data):
         if i + 1 == len(data):
@@ -221,7 +222,7 @@ def gen_final_submission(data):
     print('Please submit final_output.zip to codalab.')
 
 def eval_based_on_outputs(path):
-    dev_data = load_data('./output/dev-data-processed.json')
+    dev_data = load_data(config.preprocessing_args['processed_file'] % 'dev')
     label = [int(ex.label) for ex in dev_data]
     gold, cur_gold = [], []
     for i, ex in enumerate(dev_data):

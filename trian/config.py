@@ -1,5 +1,8 @@
+from attrdict import AttrDict
 
-model_args={
+def get_model_args(dataset, kg='conceptnet'):
+
+	model_args={
 			'gpu': '0',
 			'epoch': 50,
 			'optimizer': 'adamax',
@@ -22,23 +25,24 @@ model_args={
 			'seed': 1234,
 			'test_mode': False,
 			'checkpoint_dir': './checkpoint',
-			'last_log': './output/output.log',
-			'best_log': './output/best-dev.log',
-			'save_loc': './output/model.mdl'
+			'last_log': './output/%s-%s/output.log' % (kg,dataset),
+			'best_log': './output/%s-%s/best-dev.log' % (kg,dataset),
+			'save_loc': './output/%s-%s/model.mdl' % (kg, dataset)
 			}
+	return AttrDict(model_args)
 
-preprocessing_args={
-			'kg_filtered': './output/cskg.filter',
-			'kg_edges': './data/cskg/edges_v004.csv',
+def get_pp_args(dataset, kg='conceptnet'):
+	preprocessing_args={
+			'kg_filtered': './output/%s-%s/%s.filter' % (kg, dataset, kg),
+			'kg_edges': './data/%s/edges_v004.csv' % kg,
 			'partitions': ['train', 'dev', 'test', 'trial'],
-			'vocab_file': './output/vocab',
-            'rel_vocab_file': './output/rel_vocab',
-            'pos_vocab_file': './output/pos_vocab',
-            'ner_vocab_file': './output/ner_vocab',
-			'processed_file': './output/%s-processed.json'
+			'vocab_file': './output/%s-%s/vocab' % (kg,dataset),
+            'rel_vocab_file': './output/%s-%s/rel_vocab' % (kg,dataset),
+            'pos_vocab_file': './output/%s-%s/pos_vocab' % (kg,dataset),
+            'ner_vocab_file': './output/%s-%s/ner_vocab' % (kg,dataset),
+            'race_vocab_file': './output/%s-%s/race_vocab' % (kg,dataset),
+			'processed_file': './output/' + kg + '-' + dataset + '/%s-processed.json'
 			}
 
-class AttrDict(dict):
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
+	return AttrDict(preprocessing_args)
+

@@ -30,6 +30,7 @@ class Model:
             print('Load pretrained model from %s...' % args.pretrained)
             self.load(args.pretrained)
         else:
+            print(vocab.tokens(), args.embedding_file)
             self.load_embeddings(vocab.tokens(), args.embedding_file)
         self.network.register_buffer('fixed_embedding', self.network.embedding.weight.data[self.finetune_topk:].clone())
         if self.use_cuda:

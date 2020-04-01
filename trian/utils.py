@@ -92,10 +92,10 @@ class Dictionary(object):
                   if k not in {'<NULL>', '<UNK>'}]
         return tokens
 
-vocab, pos_vocab, ner_vocab, rel_vocab = Dictionary(), Dictionary(), Dictionary(), Dictionary()
+"""
 def gen_race_vocab(data):
     race_vocab = Dictionary()
-    build_vocab()
+    load_vocab()
     cnt = Counter()
     for ex in data:
         cnt += Counter(ex.passage.split())
@@ -108,7 +108,9 @@ def gen_race_vocab(data):
     writer = open(config.preprocessing_args['race_vocab_file'], 'w', encoding='utf-8')
     writer.write('\n'.join(race_vocab.tokens()))
     writer.close()
+"""
 
+vocab, pos_vocab, ner_vocab, rel_vocab = Dictionary(), Dictionary(), Dictionary(), Dictionary()
 def load_vocab(pargs, data=None):
 	global vocab, pos_vocab, ner_vocab, rel_vocab
 	# build word vocabulary

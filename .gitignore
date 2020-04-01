@@ -1,3 +1,4 @@
+data/
 glove*.zip
 src/mowgli-framework/
 output/
@@ -14,7 +15,3 @@ data/RACE/
 *.mdl
 answer.txt
 final_output.zip
-data/*.filter
-data/conceptnet-*.csv
-visualgenome*/
-cskg/

@@ -30,19 +30,14 @@ The overall model architecture is shown below:
 
 3. `python -m spacy download en`
 
-4. Run `./download.sh` to download [Glove embeddings](http://nlp.stanford.edu/data/glove.840B.300d.zip) and CSKG.
+4. Run `./download.sh` to download [Glove embeddings](http://nlp.stanford.edu/data/glove.840B.300d.zip). 
 
-### Step 1: Prepare data
-* Run `./run.sh` to preprocess dataset and train the model.
+5. Download CSKG (put the `cskg` folder in `data`).
 
-Note: Official dataset can be downloaded on [hidrive](https://my.hidrive.com/lnk/DhAhE8B5).
+### Step 1: Run
+To run, simply use `sh run_mowgli_trian.sh`.
 
-Note: We transform original XML format data to Json format with [xml2json](https://github.com/hay/xml2json) by running `./xml2json.py --pretty --strip_text -t xml2json -o test-data.json test-data.xml`
-
-### Step 2: Prepare model
-
-* Train model with `python3 src/main.py --gpu 0`,
-the accuracy on development set will be approximately 83% after 50 epochs.
+The accuracy on development set of SE2018T11 with ConceptNet will be approximately 83% after 50 epochs.
 
 ### Notes:
 

@@ -30,12 +30,10 @@ class Model:
             print('Load pretrained model from %s...' % args.pretrained)
             self.load(args.pretrained)
         else:
-            print(vocab.tokens(), args.embedding_file)
             self.load_embeddings(vocab.tokens(), args.embedding_file)
         self.network.register_buffer('fixed_embedding', self.network.embedding.weight.data[self.finetune_topk:].clone())
         if self.use_cuda:
             self.network.cuda()
-        print(self.network)
         self._report_num_trainable_parameters()
 
     def _report_num_trainable_parameters(self):
@@ -99,7 +97,7 @@ class Model:
         cur_pred, cur_gold, cur_choices = [], [], []
         if debug:
             from trian import config
-            writer = open(config.model_args['last_log'], 'w', encoding='utf-8')
+            writer = open(config.get_model_args()['last_log'], 'w', encoding='utf-8')
         all_preds=[]
         all_probs=[]
         for i, ex in enumerate(dev_data):
@@ -120,12 +118,14 @@ class Model:
                     writer.write('\n')
                 if py == gy:
                     correct += 1
+                print(py,gy)
                 total += 1
                 cur_pred, cur_gold, cur_choices = [], [], []
             cur_pred.append(prediction[i])
             cur_gold.append(gold[i])
             cur_choices.append(ex.choice)
 
+        print('correct/total: %d/%d' % (correct, total))
         acc = 1.0 * correct / total
         if debug:
             writer.write('Accuracy: %f\n' % acc)

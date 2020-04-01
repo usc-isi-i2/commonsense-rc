@@ -14,4 +14,4 @@ checkpoint/
 data/RACE/
 *.mdl
 answer.txt
-final_output.zip
+test_model.py

@@ -3,7 +3,7 @@ from trian import config
 class KG:
 
     def __init__(self):
-        path=config.preprocessing_args['kg_filtered']
+        path=config.get_pp_args()['kg_filtered']
         self.data = {}
         cnt = 0
         for triple in open(path, 'r', encoding='utf-8'):

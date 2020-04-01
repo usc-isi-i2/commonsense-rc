@@ -13,5 +13,5 @@ datasets="se2018t11"
 
 for dataset in $datasets 
 do
-	python -m mowgli --dataset $dataset --output output/conceptnet-se18 --config $cfg 
+	python -m mowgli --dataset $dataset --output output/conceptnet-se2018t11 --config $cfg 
 done

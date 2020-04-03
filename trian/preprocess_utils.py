@@ -145,7 +145,11 @@ def preprocess_cskg(pargs):
 	writer = open(pargs.kg_filtered, 'w', encoding='utf-8')
 	datasources=[]
 	with open(pargs.kg_edges, 'r', encoding='utf-8') as f:
-		next(f)
+		reader = csv.reader(f, delimiter='\t')
+		header=next(reader, None)
+		weight_index=header.index('weight')
+		datasource_index = header.index('datasource')
+		
 		for line in f:
 			fs = line.split('\t')
 
@@ -156,9 +160,9 @@ def preprocess_cskg(pargs):
 			w2 = _get_w(arg2, node2label)
 			if not all(w in utils.vocab for w in w2.split(' ')):
 				continue
-			if float(fs[4])<1.0 or w1==w2: # weight<1.0 or same words -> skip
+			if float(fs[weight_index])<1.0 or w1==w2: # weight<1.0 or same words -> skip
 				continue
-			datasources.append(fs[3])
+			datasources.append(fs[datasource_index])
 			writer.write('%s %s %s\n' % (relation, w1, w2))
 	writer.close()
 	print(Counter(datasources))

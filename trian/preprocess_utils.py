@@ -158,7 +158,7 @@ def preprocess_cskg(pargs):
 				continue
 			if float(fs[4])<1.0 or w1==w2: # weight<1.0 or same words -> skip
 				continue
-			datasources.append(fs[4])
+			datasources.append(fs[3])
 			writer.write('%s %s %s\n' % (relation, w1, w2))
 	writer.close()
 	print(Counter(datasources))

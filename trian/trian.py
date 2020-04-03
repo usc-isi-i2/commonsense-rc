@@ -85,23 +85,33 @@ class Trian(Predictor):
 				best_dev_acc = dev_acc
 				os.system('mv %s %s ' % (model_args.last_log, model_args.best_log))
 				model.save(checkpoint_path)
+				state_dict = copy.copy(model.network.state_dict())		
+				other_model=copy.deepcopy(model)
 				print('NEW BEST ACCURACY!')
 			elif model_args.test_mode:
 				model.save(checkpoint_path)
 			print('Epoch %d use %d seconds.' % (i, time.time() - start_time))
 
 		print('Best dev accuracy: %f' % best_dev_acc)
-		model_args.pretrained = checkpoint_path
 		best_model = Model(model_args)
-		print('best model same as last?', best_model==model)
+		best_model.network.load_state_dict(state_dict) #=state_dict
+		print('best model same as other?', best_model==other_model)
+
+		dev_data = load_data(pp_args.processed_file % 'dev')
+		dev_acc, dev_preds, dev_probs = best_model.evaluate(dev_data)
+		print('best model after training', dev_acc)
+
+		dev_acc, dev_preds, dev_probs = other_model.evaluate(dev_data) #, debug=True)
+		print('other model after training', dev_acc)
 		return best_model
 
 	def predict(self, model: Any, dataset: Dataset, partition: str) -> List:
 
+		partition='dev'
 		pp_args=get_pp_args()
-		dev_data = load_data(pp_args.processed_file % partition)
+		data = load_data(pp_args.processed_file % partition)
 
-		dev_acc, dev_preds, dev_probs = model.evaluate(dev_data)
-		print('Predict fn: Dev accuracy: %f' % dev_acc)
+		acc, preds, probs = model.evaluate(data)
+		print('Predict fn: %s accuracy: %f' % (partition, acc))
 
-		return dev_preds, dev_probs
+		return preds, probs

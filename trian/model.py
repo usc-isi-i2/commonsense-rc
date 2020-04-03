@@ -78,7 +78,6 @@ class Model:
         self.network.eval()
         correct, total, prediction, gold = 0, 0, [], []
         dev_data = sorted(dev_data, key=lambda ex: ex.id)
-        print(self.args)
         for batch_input in self._iter_data(dev_data):
             feed_input = [x for x in batch_input[:-1]]
             y = batch_input[-1].data.cpu().numpy()
@@ -118,7 +117,6 @@ class Model:
                     writer.write('\n')
                 if py == gy:
                     correct += 1
-                print(py,gy)
                 total += 1
                 cur_pred, cur_gold, cur_choices = [], [], []
             cur_pred.append(prediction[i])

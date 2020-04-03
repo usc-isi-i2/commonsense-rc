@@ -1,8 +1,0 @@
-# Classes
-predictor:
-  class: mowgli.predictor.example_predictor.example_predictor.ExamplePredictor
-
-# Settings
-evaluate_training: false
-store_predictions: true
-datarows: 10

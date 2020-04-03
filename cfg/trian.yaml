@@ -2,7 +2,12 @@
 predictor:
   class: trian.trian.Trian
 
-# Settings
+# Key settings
+dataset: 'se2018t11'
+kg: 'cskg'
+outdir: './output/cskg-se2018t11'
+
+# Other settings
 evaluate_training: false
 store_predictions: true
 datarows: 10000000

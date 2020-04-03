@@ -18,8 +18,10 @@ import numpy as np
 from datetime import datetime
 
 class Trian(Predictor):
-	def preprocess(self, dataset:Dataset, kg='conceptnet') -> Any:
-		pp_args=get_pp_args(dataset.name)
+	def preprocess(self, dataset:Dataset, config:Any) -> Any:
+		dataname=config['dataset']
+		kg=config['kg']
+		pp_args=get_pp_args(dataname, kg)
 		tok = SpacyTokenizer(annotators={'pos', 'lemma', 'ner'})
 		# Build vocabulary
 		build_vocab(dataset, pp_args, tok)
@@ -34,10 +36,11 @@ class Trian(Predictor):
 		# Done
 		return dataset
 
-	def train(self, train_data:List, dev_data: List, graph: Any) -> Any:
-
-		model_args=get_model_args()
-		pp_args=get_pp_args()
+	def train(self, dataset:Dataset, config:Any) -> Any:
+		dataname=config['dataset']
+		kg=config['kg']
+		model_args=get_model_args(dataname, kg)
+		pp_args=get_pp_args(dataname, kg)
 		print('Model arguments:', model_args)
 		if model_args.pretrained:
 			assert all(os.path.exists(p) for p in model_args.pretrained.split(',')), 'Checkpoint %s does not exist.' % model_args.pretrained
@@ -105,10 +108,10 @@ class Trian(Predictor):
 		print('other model after training', dev_acc)
 		return best_model
 
-	def predict(self, model: Any, dataset: Dataset, partition: str) -> List:
+	def predict(self, model: Any, dataset: Dataset, config:Any, partition: str) -> List:
 
 		partition='dev'
-		pp_args=get_pp_args()
+		pp_args=get_pp_args(config['dataset'], config['kg'])
 		data = load_data(pp_args.processed_file % partition)
 
 		acc, preds, probs = model.evaluate(data)

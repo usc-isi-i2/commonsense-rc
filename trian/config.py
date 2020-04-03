@@ -27,7 +27,6 @@ def get_model_args(dataset='se2018t11', kg='conceptnet'):
 			'checkpoint_dir': './checkpoint',
 			'last_log': './output/%s-%s/output.log' % (kg,dataset),
 			'best_log': './output/%s-%s/best-dev.log' % (kg,dataset),
-			'save_loc': './output/%s-%s/model.mdl' % (kg, dataset)
 			}
 	return AttrDict(model_args)
 

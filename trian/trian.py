@@ -99,7 +99,7 @@ class Trian(Predictor):
 
 		print('Best dev accuracy: %f' % best_dev_acc)
 		args.pretrained = checkpoint_path
-        best_model = Model(args)
+		best_model = Model(args)
 
 		dev_data = load_data(pp_args.processed_file % 'dev')
 		dev_acc, dev_preds, dev_probs = best_model.evaluate(dev_data)

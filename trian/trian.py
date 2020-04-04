@@ -22,6 +22,8 @@ class Trian(Predictor):
 	def preprocess(self, dataset:Dataset, config:Any) -> Any:
 		dataname=config['dataset']
 		kg=config['kg']
+		os.makedirs('./output/%s-%s' % (kg, dataname), exist_ok=True)
+		print('directory created..')
 		pp_args=get_pp_args(dataname, kg)
 		tok = SpacyTokenizer(annotators={'pos', 'lemma', 'ner'})
 		# Build vocabulary
@@ -90,24 +92,19 @@ class Trian(Predictor):
 				best_dev_acc = dev_acc
 				os.system('mv %s %s ' % (model_args.last_log, model_args.best_log))
 				model.save(checkpoint_path)
-				state_dict = copy.copy(model.network.state_dict())		
-				other_model=copy.deepcopy(model)
 				print('NEW BEST ACCURACY!')
 			elif model_args.test_mode:
 				model.save(checkpoint_path)
-			print('Epoch %d use %d seconds.' % (i, time.time() - start_time))
+			print('Epoch %d took %d seconds.' % (i, time.time() - start_time))
 
 		print('Best dev accuracy: %f' % best_dev_acc)
-		best_model = Model(model_args)
-		best_model.network.load_state_dict(state_dict) #=state_dict
-		print('best model same as other?', best_model==other_model)
+		args.pretrained = checkpoint_path
+        best_model = Model(args)
 
 		dev_data = load_data(pp_args.processed_file % 'dev')
 		dev_acc, dev_preds, dev_probs = best_model.evaluate(dev_data)
 		print('best model after training', dev_acc)
 
-		dev_acc, dev_preds, dev_probs = other_model.evaluate(dev_data) #, debug=True)
-		print('other model after training', dev_acc)
 		return best_model
 
 	def predict(self, model: Any, dataset: Dataset, config:Any, partition: str) -> List:

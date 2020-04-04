@@ -1,9 +1,9 @@
 from trian.utils import is_stopword
-from trian import config
+#from trian import config
 class KG:
 
-    def __init__(self):
-        path=config.get_pp_args()['kg_filtered']
+    def __init__(self, path):
+        #path=config.get_pp_args()['kg_filtered']
         self.data = {}
         cnt = 0
         for triple in open(path, 'r', encoding='utf-8'):
@@ -43,11 +43,4 @@ class KG:
                     ret[i] = r
                     break
         return ret
-my_kg=KG()
-if __name__ == '__main__':
-    net = KG()
-    print(net.get_relation('positive', 'negative'))
-    print(net.get_relation('under water', 'above water'))
-    while True:
-        w1, w2 = input('Please input two words: ').strip().split()[:2]
-        print(net.get_relation(w1, w2))
+#my_kg=KG()

@@ -1,9 +1,9 @@
 from attrdict import AttrDict
 
-def get_model_args(dataset='se2018t11', kg='conceptnet'):
+def get_model_args(dataset, kg):
 
 	model_args={
-			'gpu': '0',
+			'gpu': '2',
 			'epoch': 50,
 			'optimizer': 'adamax',
 			'use_cuda': True,
@@ -30,7 +30,7 @@ def get_model_args(dataset='se2018t11', kg='conceptnet'):
 			}
 	return AttrDict(model_args)
 
-def get_pp_args(dataset='se2018t11', kg='conceptnet'):
+def get_pp_args(dataset, kg):
 	preprocessing_args={
 			'kg_filtered': './output/%s-%s/%s.filter' % (kg, dataset, kg),
 			'kg_edges': './data/%s/edges_v004.csv' % kg,

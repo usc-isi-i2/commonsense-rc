@@ -5,6 +5,7 @@ import math
 import glob
 import wikiwords
 from collections import Counter
+import csv
 
 from trian.trian_classes import SpacyTokenizer 
 from trian.utils import is_stopword, is_punc
@@ -13,6 +14,7 @@ from trian import utils
 
 digits2w = {'0': 'zero', '1': 'one', '2': 'two', '3': 'three',
             '4': 'four', '5': 'five', '6': 'six', '7': 'seven', '8': 'eight', '9': 'nine'}
+kg_instance=None
 def replace_digits(words):
     global digits2w
     return [digits2w[w] if w in digits2w else w for w in words]
@@ -29,7 +31,7 @@ def tokenize(text, tok):
     }
     return output
 
-def compute_features(d_dict, q_dict, c_dict):
+def compute_features(d_dict, q_dict, c_dict, kg_instance):
     # in_q, in_c, lemma_in_q, lemma_in_c, tf
     q_words_set = set([w.lower() for w in q_dict['words']])
     in_q = [int(w.lower() in q_words_set and not is_stopword(w) and not is_punc(w)) for w in d_dict['words']]
@@ -44,9 +46,8 @@ def compute_features(d_dict, q_dict, c_dict):
     tf = [0.1 * math.log(wikiwords.N * wikiwords.freq(w.lower()) + 10) for w in d_dict['words']]
     tf = [float('%.2f' % v) for v in tf]
     d_words = Counter(filter(lambda w: not is_stopword(w) and not is_punc(w), d_dict['words']))
-    from trian.kg import my_kg
-    p_q_relation = my_kg.p_q_relation(d_dict['words'], q_dict['words'])
-    p_c_relation = my_kg.p_q_relation(d_dict['words'], c_dict['words'])
+    p_q_relation = kg_instance.p_q_relation(d_dict['words'], q_dict['words'])
+    p_c_relation = kg_instance.p_q_relation(d_dict['words'], c_dict['words'])
     assert len(in_q) == len(in_c) and len(lemma_in_q) == len(in_q) and len(lemma_in_c) == len(in_q) and len(tf) == len(in_q)
     assert len(tf) == len(p_q_relation) and len(tf) == len(p_c_relation)
     return {
@@ -71,7 +72,7 @@ def get_example(d_id, q_id, c_id, d_dict, q_dict, c_dict, label):
             'label': label
         }
 
-def preprocess_dataset(dataset, pargs, tok):
+def preprocess_dataset(dataset, pargs, tok, kg_instance):
 	for partition in pargs.partitions:
 		part_data=getattr(dataset, partition)
 		writer = open(pargs.processed_file % partition, 'w', encoding='utf-8')
@@ -92,7 +93,7 @@ def preprocess_dataset(dataset, pargs, tok):
 				c_dict = tokenize(ans, tok)
 				label = int(correct_answer==c_id) if not is_test_set else -1
 				example = get_example(d_id, q_id, c_id, d_dict, q_dict, c_dict, label)
-				example.update(compute_features(d_dict, q_dict, c_dict))
+				example.update(compute_features(d_dict, q_dict, c_dict, kg_instance))
 				writer.write(json.dumps(example))
 				writer.write('\n')
 
@@ -149,6 +150,7 @@ def preprocess_cskg(pargs):
 		header=next(reader, None)
 		weight_index=header.index('weight')
 		datasource_index = header.index('datasource')
+		print(weight_index, datasource_index, 'indices')
 		
 		for line in f:
 			fs = line.split('\t')

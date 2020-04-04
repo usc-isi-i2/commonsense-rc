@@ -8,6 +8,7 @@ from trian.preprocess_utils import build_vocab
 from trian.utils import load_vocab, load_data
 from trian.model import Model
 from trian.config import get_pp_args, get_model_args
+import trian.kg
 
 import copy
 import os
@@ -28,10 +29,11 @@ class Trian(Predictor):
 
 		# Preprocess KG
 		preprocess_cskg(pp_args)
+		kg_instance=trian.kg.KG(pp_args.kg_filtered)
 		print('done preprocessing cskg')
 		
 		# Preprocess datasets
-		preprocess_dataset(dataset, pp_args, tok)
+		preprocess_dataset(dataset, pp_args, tok, kg_instance)
 		
 		# Done
 		return dataset
@@ -81,7 +83,7 @@ class Trian(Predictor):
 			train2000=train_data[:2000]
 			train_acc, *rest = model.evaluate(train2000, debug=False, eval_train=True)
 			print('Train accuracy: %f' % train_acc)
-			dev_acc, dev_preds, dev_probs = model.evaluate(dev_data, debug=True)
+			dev_acc, dev_preds, dev_probs = model.evaluate(dev_data, debug=True, log_file=model_args['last_log'])
 			print('Dev accuracy: %f' % dev_acc)
 
 			if dev_acc > best_dev_acc:

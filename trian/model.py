@@ -72,7 +72,7 @@ class Model:
         self.scheduler.step()
         print('LR:', self.scheduler.get_lr()[0])
 
-    def evaluate(self, dev_data, debug=False, eval_train=False):
+    def evaluate(self, dev_data, debug=False, eval_train=False, log_file=''):
         if len(dev_data) == 0:
             return -1.0, [], []
         self.network.eval()
@@ -95,8 +95,7 @@ class Model:
 
         cur_pred, cur_gold, cur_choices = [], [], []
         if debug:
-            from trian import config
-            writer = open(config.get_model_args()['last_log'], 'w', encoding='utf-8')
+            writer = open(log_file, 'w', encoding='utf-8')
         all_preds=[]
         all_probs=[]
         for i, ex in enumerate(dev_data):

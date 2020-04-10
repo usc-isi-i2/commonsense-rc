@@ -20,6 +20,8 @@ from datetime import datetime
 
 class Trian(Predictor):
 	def preprocess(self, dataset:Dataset, config:Any) -> Any:
+
+
 		dataname=config['dataset']
 		kg=config['kg']
 		os.makedirs('./output/%s-%s' % (kg, dataname), exist_ok=True)
@@ -29,6 +31,7 @@ class Trian(Predictor):
 		# Build vocabulary
 		build_vocab(dataset, pp_args, tok)
 
+
 		# Preprocess KG
 		preprocess_cskg(pp_args)
 		kg_instance=trian.kg.KG(pp_args.kg_filtered)
@@ -36,7 +39,14 @@ class Trian(Predictor):
 		
 		# Preprocess datasets
 		preprocess_dataset(dataset, pp_args, tok, kg_instance)
-		
+		print('data preprocessing finished.')
+
+		dev_data = load_data(pp_args.processed_file % 'dev')
+		for d in dev_data:
+			if not d.passage.strip() or not d.question.strip() or not d.choice.strip():
+				print(d)
+				input('c?')
+		print('all data is complete, no missing fields')
 		# Done
 		return dataset
 
@@ -98,8 +108,8 @@ class Trian(Predictor):
 			print('Epoch %d took %d seconds.' % (i, time.time() - start_time))
 
 		print('Best dev accuracy: %f' % best_dev_acc)
-		args.pretrained = checkpoint_path
-		best_model = Model(args)
+		model_args.pretrained = checkpoint_path
+		best_model = Model(model_args)
 
 		dev_data = load_data(pp_args.processed_file % 'dev')
 		dev_acc, dev_preds, dev_probs = best_model.evaluate(dev_data)

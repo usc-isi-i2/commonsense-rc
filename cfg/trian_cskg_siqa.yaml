@@ -1,0 +1,13 @@
+# Classes
+predictor:
+  class: trian.trian.Trian
+
+# Key settings
+dataset: 'socialiqa-train-dev'
+kg: 'cskg' 
+outdir: './output/cskg-socialiqa-train-dev'
+
+# Other settings
+evaluate_training: false
+store_predictions: true
+datarows: 1000000000

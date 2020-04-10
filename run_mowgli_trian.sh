@@ -5,6 +5,6 @@ mkdir -p output
 #rm output/*
 #rm checkpoint/*.mdl
 
-cfg="cfg/trian.yaml"
+cfg=$1
 
 python -m mowgli --config $cfg 

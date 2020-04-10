@@ -9,10 +9,10 @@ def get_model_args(dataset, kg):
 			'use_cuda': True,
 			'grad_clipping': 10.0,
 			'lr': 2e-3,
-			'batch_size': 32,
+			'batch_size': 32, # was 32
 			'embedding_file': './data/glove.840B.300d.txt',
 			'hidden_size': 96,
-			'doc_layers': 1,
+			'doc_layers': 2,
 			'rnn_type': 'lstm',
 			'dropout_rnn_output': 0.4,
 			'rnn_padding': True,

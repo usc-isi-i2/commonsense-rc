@@ -1,0 +1,13 @@
+# Classes
+predictor:
+  class: trian.trian.Trian
+
+# Key settings
+dataset: 'hellaswag-train-dev'
+kg: 'conceptnet' #'conceptnet' 
+outdir: './output/conceptnet-hellaswag-train-dev'
+
+# Other settings
+evaluate_training: false
+store_predictions: true
+datarows: 10000000000

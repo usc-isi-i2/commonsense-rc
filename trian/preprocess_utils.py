@@ -72,6 +72,16 @@ def get_example(d_id, q_id, c_id, d_dict, q_dict, c_dict, label):
             'label': label
         }
 
+def extract_question_parts(q):
+	*context, question=q
+	if question=='': # ActivityNet
+		ind=context[1].index('[title]')
+		question=context[1][:ind]
+		context[1]=context[1][ind:]
+	context='. '.join(context)
+
+	return context, question
+
 def preprocess_dataset(dataset, pargs, tok, kg_instance):
 	for partition in pargs.partitions:
 		part_data=getattr(dataset, partition)
@@ -81,8 +91,7 @@ def preprocess_dataset(dataset, pargs, tok, kg_instance):
 		for obj in part_data:
 			q_id = getattr(obj, 'id')
 			d_id = q_id
-			*context_l, question=obj.question
-			context='. '.join(context_l)
+			context, question=extract_question_parts(obj.question)
 			d_dict = tokenize(context, tok)
 			q_dict = tokenize(question, tok)
 			answers=getattr(obj, 'answers')
@@ -111,7 +120,18 @@ def build_vocab(dataset, pargs, tok):
 	for partition in pargs.partitions:
 		part_data=getattr(dataset, partition)
 		for obj in part_data:
-			context, question=obj.question
+			context, question=extract_question_parts(obj.question)
+			if not question.strip() or not context.strip():
+				print('q: ', question, 'c: ', context)
+				input('cont?')
+#			*context, question=obj.question
+#			context='. '.join(context)
+#			if question.strip()=='':
+#				context_sents=context.split('. ')
+#				if context_sents[-1].strip()=='':
+#					context_sents=context_sents[:-1]
+#				context='. '.join(context_sents[:-1])
+#				question=context_sents[-1]
 			d_dict = tokenize(context, tok)
 			word_cnt += Counter(d_dict['words'])
 			q_dict = tokenize(question, tok)
